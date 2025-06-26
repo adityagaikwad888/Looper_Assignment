@@ -354,15 +354,8 @@ const exportTransactions = async (req, res) => {
       format = "csv",
     } = req.body;
 
-    const {
-      search,
-      status,
-      category,
-      dateFrom,
-      dateTo,
-      amountMin,
-      amountMax,
-    } = filters;
+    const { search, status, category, dateFrom, dateTo, amountMin, amountMax } =
+      filters;
 
     // Build query object (same logic as queryTransactions)
     const query = {};
@@ -447,12 +440,18 @@ const exportTransactions = async (req, res) => {
 
       // Set CSV headers
       res.setHeader("Content-Type", "text/csv");
-      res.setHeader("Content-Disposition", "attachment; filename=transactions.csv");
+      res.setHeader(
+        "Content-Disposition",
+        "attachment; filename=transactions.csv"
+      );
       res.send(csvContent);
     } else {
       // Return JSON
       res.setHeader("Content-Type", "application/json");
-      res.setHeader("Content-Disposition", "attachment; filename=transactions.json");
+      res.setHeader(
+        "Content-Disposition",
+        "attachment; filename=transactions.json"
+      );
       res.json({
         exportDate: new Date().toISOString(),
         totalRecords: formattedData.length,

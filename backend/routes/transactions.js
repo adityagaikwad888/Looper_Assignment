@@ -5,7 +5,7 @@ const {
   getRecentTransactions,
   getTransactions,
   queryTransactions,
-  exportTransactions
+  exportTransactions,
 } = require("../controllers/transactionController");
 
 const router = express.Router();
