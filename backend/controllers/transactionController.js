@@ -238,9 +238,243 @@ const getTransactions = async (req, res) => {
   }
 };
 
+// 5. POST /transactions/query - Backend-driven filtering
+const queryTransactions = async (req, res) => {
+  try {
+    const {
+      search,
+      status,
+      category,
+      dateFrom,
+      dateTo,
+      amountMin,
+      amountMax,
+      sortBy = "date",
+      order = "desc",
+      page = 1,
+      limit = 10,
+    } = req.body;
+
+    // Build query object
+    const query = {};
+
+    // Search functionality
+    if (search) {
+      query.$or = [
+        { user_id: { $regex: search, $options: "i" } },
+        { id: isNaN(search) ? undefined : parseInt(search) },
+      ].filter(Boolean);
+    }
+
+    // Filter by status
+    if (status) {
+      query.status = status;
+    }
+
+    // Filter by category
+    if (category) {
+      query.category = category;
+    }
+
+    // Date range filter
+    if (dateFrom || dateTo) {
+      query.date = {};
+      if (dateFrom) {
+        query.date.$gte = new Date(dateFrom);
+      }
+      if (dateTo) {
+        query.date.$lte = new Date(dateTo);
+      }
+    }
+
+    // Amount range filter
+    if (amountMin !== undefined || amountMax !== undefined) {
+      query.amount = {};
+      if (amountMin !== undefined) {
+        query.amount.$gte = parseFloat(amountMin);
+      }
+      if (amountMax !== undefined) {
+        query.amount.$lte = parseFloat(amountMax);
+      }
+    }
+
+    // Pagination
+    const pageNum = parseInt(page);
+    const limitNum = parseInt(limit);
+    const skip = (pageNum - 1) * limitNum;
+
+    // Sorting
+    const sortOrder = order === "desc" ? -1 : 1;
+    const sortObj = { [sortBy]: sortOrder };
+
+    // Execute query
+    const transactions = await Transaction.find(query)
+      .sort(sortObj)
+      .skip(skip)
+      .limit(limitNum);
+
+    // Get total count for pagination
+    const totalCount = await Transaction.countDocuments(query);
+
+    // Format response data
+    const formattedData = transactions.map((transaction) => ({
+      id: transaction.id,
+      name: `User ${transaction.user_id}`,
+      date: transaction.date.toISOString().split("T")[0], // Format: 2024-01-15
+      amount: transaction.amount,
+      category: transaction.category,
+      status: transaction.status,
+      user_id: transaction.user_id,
+    }));
+
+    const response = {
+      total: totalCount,
+      page: pageNum,
+      limit: limitNum,
+      totalPages: Math.ceil(totalCount / limitNum),
+      data: formattedData,
+    };
+
+    logger.info(
+      `Query returned ${transactions.length} transactions (page ${pageNum})`
+    );
+    res.json(response);
+  } catch (error) {
+    logger.error("Error querying transactions:", error);
+    res.status(500).json({ message: "Error querying transactions" });
+  }
+};
+
+// 6. POST /transactions/export - Export filtered data
+const exportTransactions = async (req, res) => {
+  try {
+    const {
+      filters = {},
+      fields = ["name", "date", "amount", "status", "category"],
+      format = "csv",
+    } = req.body;
+
+    const {
+      search,
+      status,
+      category,
+      dateFrom,
+      dateTo,
+      amountMin,
+      amountMax,
+    } = filters;
+
+    // Build query object (same logic as queryTransactions)
+    const query = {};
+
+    if (search) {
+      query.$or = [
+        { user_id: { $regex: search, $options: "i" } },
+        { id: isNaN(search) ? undefined : parseInt(search) },
+      ].filter(Boolean);
+    }
+
+    if (status) query.status = status;
+    if (category) query.category = category;
+
+    if (dateFrom || dateTo) {
+      query.date = {};
+      if (dateFrom) query.date.$gte = new Date(dateFrom);
+      if (dateTo) query.date.$lte = new Date(dateTo);
+    }
+
+    if (amountMin !== undefined || amountMax !== undefined) {
+      query.amount = {};
+      if (amountMin !== undefined) query.amount.$gte = parseFloat(amountMin);
+      if (amountMax !== undefined) query.amount.$lte = parseFloat(amountMax);
+    }
+
+    // Get all matching transactions (no pagination for export)
+    const transactions = await Transaction.find(query).sort({ date: -1 });
+
+    // Format data based on requested fields
+    const formattedData = transactions.map((transaction) => {
+      const row = {};
+      fields.forEach((field) => {
+        switch (field) {
+          case "name":
+            row.name = `User ${transaction.user_id}`;
+            break;
+          case "date":
+            row.date = transaction.date.toISOString().split("T")[0];
+            break;
+          case "amount":
+            row.amount = transaction.amount;
+            break;
+          case "status":
+            row.status = transaction.status;
+            break;
+          case "category":
+            row.category = transaction.category;
+            break;
+          case "user_id":
+            row.user_id = transaction.user_id;
+            break;
+          default:
+            if (transaction[field] !== undefined) {
+              row[field] = transaction[field];
+            }
+        }
+      });
+      return row;
+    });
+
+    if (format === "csv") {
+      // Generate CSV
+      const csvHeader = fields.join(",");
+      const csvRows = formattedData.map((row) => {
+        return fields
+          .map((field) => {
+            const value = row[field];
+            // Escape commas and quotes in CSV
+            if (
+              typeof value === "string" &&
+              (value.includes(",") || value.includes('"'))
+            ) {
+              return `"${value.replace(/"/g, '""')}"`;
+            }
+            return value;
+          })
+          .join(",");
+      });
+
+      const csvContent = [csvHeader, ...csvRows].join("\n");
+
+      // Set CSV headers
+      res.setHeader("Content-Type", "text/csv");
+      res.setHeader("Content-Disposition", "attachment; filename=transactions.csv");
+      res.send(csvContent);
+    } else {
+      // Return JSON
+      res.setHeader("Content-Type", "application/json");
+      res.setHeader("Content-Disposition", "attachment; filename=transactions.json");
+      res.json({
+        exportDate: new Date().toISOString(),
+        totalRecords: formattedData.length,
+        filters: filters,
+        data: formattedData,
+      });
+    }
+
+    logger.info(
+      `Exported ${formattedData.length} transactions in ${format} format`
+    );
+  } catch (error) {
+    logger.error("Error exporting transactions:", error);
+    res.status(500).json({ message: "Error exporting transactions" });
+  }
+};
+
 module.exports = {
   getDashboardSummary,
   getDashboardTrends,
   getRecentTransactions,
   getTransactions,
+  queryTransactions,
+  exportTransactions,
 };

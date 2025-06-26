@@ -4,6 +4,8 @@ const {
   getDashboardTrends,
   getRecentTransactions,
   getTransactions,
+  queryTransactions,
+  exportTransactions
 } = require("../controllers/transactionController");
 
 const router = express.Router();
@@ -15,5 +17,7 @@ router.get("/dashboard/trends", getDashboardTrends);
 // Transaction endpoints
 router.get("/transactions/recent", getRecentTransactions);
 router.get("/transactions", getTransactions);
+router.post("/transactions/query", queryTransactions);
+router.post("/transactions/export", exportTransactions);
 
 module.exports = router;
