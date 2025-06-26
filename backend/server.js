@@ -13,6 +13,7 @@ connectDB();
 
 // Import routes
 const authRoutes = require("./routes/auth");
+const transactionRoutes = require("./routes/transactions");
 
 const app = express();
 
@@ -40,8 +41,60 @@ if (process.env.NODE_ENV === "development") {
   });
 }
 
+// Debug middleware for transaction routes
+app.use("/api", (req, res, next) => {
+  console.log("🔥 TRANSACTION ROUTE HIT:");
+  console.log("Method:", req.method);
+  console.log("URL:", req.url);
+  console.log("Full URL:", req.originalUrl);
+  next();
+});
+
+// Test transaction endpoint
+app.get("/api/test-transactions", async (req, res) => {
+  console.log("🧪 TEST ENDPOINT HIT");
+  try {
+    const Transaction = require("./models/Transaction");
+    const mongoose = require("mongoose");
+
+    // Check which database we're connected to
+    const dbName = mongoose.connection.db.databaseName;
+    console.log(`Connected to database: ${dbName}`);
+
+    // List all collections in current database
+    const collections = await mongoose.connection.db
+      .listCollections()
+      .toArray();
+    console.log(
+      `Collections in ${dbName}:`,
+      collections.map((c) => c.name)
+    );
+
+    // Test raw MongoDB connection
+    const db = mongoose.connection.db;
+    const rawCount = await db.collection("transactions").countDocuments();
+    console.log(`Raw MongoDB count: ${rawCount}`);
+
+    // Test Mongoose model
+    const modelCount = await Transaction.countDocuments();
+    console.log(`Mongoose model count: ${modelCount}`);
+
+    res.json({
+      message: "Test endpoint working",
+      database: dbName,
+      collections: collections.map((c) => c.name),
+      rawCount,
+      modelCount,
+    });
+  } catch (error) {
+    console.error("Error in test:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Routes
 app.use("/api/auth", authRoutes);
+app.use("/api", transactionRoutes);
 
 // Test route
 app.get("/healthCheck", (req, res) => {
