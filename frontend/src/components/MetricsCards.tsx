@@ -23,8 +23,8 @@ const MetricsCards = () => {
         ? "Loading..."
         : `$${summary?.balance?.toLocaleString() || "0"}`,
       icon: CreditCard,
-      color: "text-blue-400",
-      bg: "bg-blue-500/10",
+      color: "text-emerald-400",
+      bg: "bg-emerald-500/10",
     },
     {
       title: "Revenue",
@@ -50,8 +50,8 @@ const MetricsCards = () => {
         ? "Loading..."
         : `$${summary?.savings?.toLocaleString() || "0"}`,
       icon: PiggyBank,
-      color: "text-green-400",
-      bg: "bg-green-500/10",
+      color: "text-emerald-400",
+      bg: "bg-emerald-500/10",
     },
   ];
 

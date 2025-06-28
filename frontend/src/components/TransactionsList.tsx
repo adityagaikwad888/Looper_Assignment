@@ -129,6 +129,22 @@ const TransactionsList = ({ filters }: TransactionsListProps) => {
     setCurrentFilters((prev) => ({ ...prev, page: newPage }));
   };
 
+  const getAmountColor = (transaction) => {
+    // Check category first, then amount
+    if (transaction.category === "Revenue") {
+      return "text-emerald-400"; // Green for revenue
+    } else if (transaction.category === "Expense") {
+      if (transaction.status === "Paid") {
+        return "text-red-400"; // Red for paid expenses
+      } else {
+        return "text-yellow-400"; // Yellow for unpaid expenses
+      }
+    } else if (transaction.amount > 0) {
+      return "text-emerald-400"; // Green for positive amounts (fallback)
+    }
+    return "text-red-400"; // Red for negative amounts (fallback)
+  };
+
   const getStatusBadgeVariant = (status: string) => {
     switch (status.toLowerCase()) {
       case "paid":
@@ -248,11 +264,7 @@ const TransactionsList = ({ filters }: TransactionsListProps) => {
                 <div className="flex items-center space-x-4">
                   <div className="text-right">
                     <p
-                      className={`font-semibold ${
-                        transaction.amount >= 0
-                          ? "text-emerald-400"
-                          : "text-red-400"
-                      }`}
+                      className={`font-semibold ${getAmountColor(transaction)}`}
                     >
                       {formatAmount(transaction.amount)}
                     </p>

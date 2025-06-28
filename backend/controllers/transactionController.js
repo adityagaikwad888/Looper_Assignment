@@ -203,7 +203,7 @@ const getRecentTransactions = async (req, res) => {
     const recentTransactions = await Transaction.find()
       .sort({ date: -1 })
       .limit(limit)
-      .select("id amount category date user_id");
+      .select("id amount category date user_id status");
 
     const formattedTransactions = recentTransactions.map((transaction) => ({
       id: transaction.id,
@@ -212,6 +212,8 @@ const getRecentTransactions = async (req, res) => {
       type: transaction.category.toLowerCase(),
       date: transaction.date,
       user_id: transaction.user_id,
+      status: transaction.status,
+      category: transaction.category,
     }));
 
     logger.info(`${recentTransactions.length} recent transactions retrieved`);

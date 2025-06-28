@@ -55,6 +55,36 @@ const RecentTransactions = () => {
     });
   };
 
+  const getAmountColor = (transaction) => {
+    // Debug: log the transaction data
+    console.log("Transaction data:", transaction);
+
+    // Check category first, then amount
+    // Use type field which is the lowercase version of category
+    const category = transaction.type ? transaction.type.toLowerCase() : "";
+    console.log(
+      "Category:",
+      category,
+      "Status:",
+      transaction.status,
+      "Amount:",
+      transaction.amount
+    );
+
+    if (category === "revenue") {
+      return "text-emerald-400"; // Green for revenue
+    } else if (category === "expense") {
+      if (transaction.status === "Paid") {
+        return "text-red-400"; // Red for paid expenses
+      } else {
+        return "text-yellow-400"; // Yellow for unpaid expenses
+      }
+    } else if (transaction.amount > 0) {
+      return "text-emerald-400"; // Green for positive amounts (fallback)
+    }
+    return "text-red-400"; // Red for negative amounts (fallback)
+  };
+
   const formatFullDate = (dateString) => {
     const date = new Date(dateString);
     return date.toLocaleDateString("en-US", {
@@ -109,11 +139,9 @@ const RecentTransactions = () => {
                       </p>
                     </div>
                     <span
-                      className={`text-sm font-semibold ${
-                        transaction.amount > 0
-                          ? "text-emerald-400"
-                          : "text-red-400"
-                      }`}
+                      className={`text-sm font-semibold ${getAmountColor(
+                        transaction
+                      )}`}
                     >
                       {transaction.amount > 0 ? "+" : ""}$
                       {Math.abs(transaction.amount).toLocaleString()}
@@ -147,11 +175,9 @@ const RecentTransactions = () => {
                       <div>
                         <span className="text-slate-400">Amount:</span>
                         <span
-                          className={`ml-1 font-semibold ${
-                            transaction.amount > 0
-                              ? "text-emerald-400"
-                              : "text-red-400"
-                          }`}
+                          className={`ml-1 font-semibold ${getAmountColor(
+                            transaction
+                          )}`}
                         >
                           {transaction.amount > 0 ? "+" : ""}$
                           {Math.abs(transaction.amount).toLocaleString()}
