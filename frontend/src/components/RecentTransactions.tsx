@@ -20,7 +20,7 @@ const fetchRecentTransactions = async () => {
 const RecentTransactions = () => {
   const [hoveredTransaction, setHoveredTransaction] = useState(null);
   const navigate = useNavigate();
-  
+
   const { data: transactions = [], isLoading } = useQuery({
     queryKey: ["recent-transactions"],
     queryFn: fetchRecentTransactions,
@@ -42,8 +42,8 @@ const RecentTransactions = () => {
           order: "desc",
           page: 1,
           limit: 10,
-        }
-      }
+        },
+      },
     });
   };
 
@@ -70,7 +70,7 @@ const RecentTransactions = () => {
         <CardHeader>
           <div className="flex items-center justify-between">
             <CardTitle className="text-white">Recent Transactions</CardTitle>
-            <button 
+            <button
               onClick={handleSeeAllClick}
               className="text-emerald-400 text-sm hover:text-emerald-300 transition-colors"
             >
@@ -85,19 +85,24 @@ const RecentTransactions = () => {
             transactions.map((transaction) => (
               <Tooltip key={transaction.id}>
                 <TooltipTrigger asChild>
-                  <div 
+                  <div
                     className="flex items-center space-x-3 p-2 rounded-lg hover:bg-slate-800 transition-colors cursor-pointer"
                     onMouseEnter={() => setHoveredTransaction(transaction)}
                     onMouseLeave={() => setHoveredTransaction(null)}
                   >
                     <div className="w-10 h-10 rounded-full bg-slate-700 flex items-center justify-center">
                       <span className="text-sm font-medium text-white">
-                        {transaction.user_id ? transaction.user_id.charAt(0).toUpperCase() : "T"}
+                        {transaction.user_id
+                          ? transaction.user_id.charAt(0).toUpperCase()
+                          : "T"}
                       </span>
                     </div>
                     <div className="flex-1">
                       <p className="text-sm font-medium text-white">
-                        {transaction.type ? transaction.type.charAt(0).toUpperCase() + transaction.type.slice(1) : 'Unknown'}
+                        {transaction.type
+                          ? transaction.type.charAt(0).toUpperCase() +
+                            transaction.type.slice(1)
+                          : "Unknown"}
                       </p>
                       <p className="text-xs text-slate-400">
                         {formatDate(transaction.date)}
@@ -105,7 +110,9 @@ const RecentTransactions = () => {
                     </div>
                     <span
                       className={`text-sm font-semibold ${
-                        transaction.amount > 0 ? "text-emerald-400" : "text-red-400"
+                        transaction.amount > 0
+                          ? "text-emerald-400"
+                          : "text-red-400"
                       }`}
                     >
                       {transaction.amount > 0 ? "+" : ""}$
@@ -113,21 +120,41 @@ const RecentTransactions = () => {
                     </span>
                   </div>
                 </TooltipTrigger>
-                <TooltipContent 
-                  side="left" 
+                <TooltipContent
+                  side="left"
                   className="bg-slate-800 border-slate-700 text-white p-3 max-w-xs"
                 >
                   <div className="space-y-2">
-                    <div className="font-semibold">Transaction #{transaction.id}</div>
+                    <div className="font-semibold">
+                      Transaction #{transaction.id}
+                    </div>
                     <div className="text-sm space-y-1">
-                      <div><span className="text-slate-400">User:</span> {transaction.user_id}</div>
-                      <div><span className="text-slate-400">Category:</span> {transaction.type ? transaction.type.charAt(0).toUpperCase() + transaction.type.slice(1) : 'Unknown'}</div>
-                      <div><span className="text-slate-400">Date:</span> {formatFullDate(transaction.date)}</div>
-                      <div><span className="text-slate-400">Amount:</span> 
-                        <span className={`ml-1 font-semibold ${
-                          transaction.amount > 0 ? "text-emerald-400" : "text-red-400"
-                        }`}>
-                          {transaction.amount > 0 ? "+" : ""}${Math.abs(transaction.amount).toLocaleString()}
+                      <div>
+                        <span className="text-slate-400">User:</span>{" "}
+                        {transaction.user_id}
+                      </div>
+                      <div>
+                        <span className="text-slate-400">Category:</span>{" "}
+                        {transaction.type
+                          ? transaction.type.charAt(0).toUpperCase() +
+                            transaction.type.slice(1)
+                          : "Unknown"}
+                      </div>
+                      <div>
+                        <span className="text-slate-400">Date:</span>{" "}
+                        {formatFullDate(transaction.date)}
+                      </div>
+                      <div>
+                        <span className="text-slate-400">Amount:</span>
+                        <span
+                          className={`ml-1 font-semibold ${
+                            transaction.amount > 0
+                              ? "text-emerald-400"
+                              : "text-red-400"
+                          }`}
+                        >
+                          {transaction.amount > 0 ? "+" : ""}$
+                          {Math.abs(transaction.amount).toLocaleString()}
                         </span>
                       </div>
                     </div>

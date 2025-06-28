@@ -10,7 +10,7 @@ import { Search } from "lucide-react";
 const Transactions = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
-  
+
   const [filters, setFilters] = useState({
     search: "",
     status: "",
