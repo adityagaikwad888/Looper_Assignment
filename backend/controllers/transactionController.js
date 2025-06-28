@@ -124,6 +124,77 @@ const getDashboardTrends = async (req, res) => {
   }
 };
 
+// 2.1. Yearly Trends - GET /dashboard/trends/yearly
+const getDashboardTrendsYearly = async (req, res) => {
+  try {
+    console.log(`📅 Fetching yearly trends for all available years`);
+
+    // Get all paid transactions to find the year range
+    const allTransactions = await Transaction.find({ status: "Paid" });
+
+    if (allTransactions.length === 0) {
+      return res.json([]);
+    }
+
+    // Find the smallest and largest years in the database
+    const years = allTransactions.map((transaction) =>
+      new Date(transaction.date).getFullYear()
+    );
+    const minYear = Math.min(...years);
+    const maxYear = Math.max(...years);
+
+    console.log(
+      `📊 Found data from ${minYear} to ${maxYear} (${allTransactions.length} transactions)`
+    );
+
+    // Group transactions by year
+    const yearlyData = {};
+
+    allTransactions.forEach((transaction) => {
+      const year = new Date(transaction.date).getFullYear();
+
+      if (!yearlyData[year]) {
+        yearlyData[year] = { year, revenue: 0, expense: 0 };
+      }
+
+      if (transaction.category === "Revenue") {
+        yearlyData[year].revenue += transaction.amount;
+      } else if (transaction.category === "Expense") {
+        yearlyData[year].expense += transaction.amount;
+      }
+    });
+
+    // Convert to array and include all years from min to max
+    const trends = [];
+    for (let year = minYear; year <= maxYear; year++) {
+      if (yearlyData[year]) {
+        trends.push({
+          year,
+          revenue: parseFloat(yearlyData[year].revenue.toFixed(2)),
+          expense: parseFloat(yearlyData[year].expense.toFixed(2)),
+        });
+      } else {
+        // Include years with no data as 0
+        trends.push({
+          year,
+          revenue: 0,
+          expense: 0,
+        });
+      }
+    }
+
+    logger.info(
+      `Yearly dashboard trends retrieved successfully for ${minYear}-${maxYear}`
+    );
+    res.json(trends);
+  } catch (error) {
+    logger.error("Error getting yearly dashboard trends:", error);
+    res
+      .status(500)
+      .json({ message: "Error retrieving yearly dashboard trends" });
+  }
+};
+
 // 3. Recent Transactions Sidebar - GET /transactions/recent
 const getRecentTransactions = async (req, res) => {
   try {
@@ -472,6 +543,7 @@ const exportTransactions = async (req, res) => {
 module.exports = {
   getDashboardSummary,
   getDashboardTrends,
+  getDashboardTrendsYearly,
   getRecentTransactions,
   getTransactions,
   queryTransactions,
