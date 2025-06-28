@@ -65,12 +65,20 @@ const TransactionFilters = ({
   const exportTransactions = async (format: "csv" | "json") => {
     try {
       const exportData = {
-        ...(filters.status && { status: filters.status }),
-        ...(filters.category && { category: filters.category }),
-        ...(filters.amountMin && { amountMin: parseFloat(filters.amountMin) }),
-        ...(filters.amountMax && { amountMax: parseFloat(filters.amountMax) }),
-        ...(filters.dateStart && { dateFrom: filters.dateStart }),
-        ...(filters.dateEnd && { dateTo: filters.dateEnd }),
+        filters: {
+          ...(filters.status && { status: filters.status }),
+          ...(filters.category && { category: filters.category }),
+          ...(filters.amountMin &&
+            filters.amountMin !== "" && {
+              amountMin: parseFloat(filters.amountMin),
+            }),
+          ...(filters.amountMax &&
+            filters.amountMax !== "" && {
+              amountMax: parseFloat(filters.amountMax),
+            }),
+          ...(filters.dateStart && { dateFrom: filters.dateStart }),
+          ...(filters.dateEnd && { dateTo: filters.dateEnd }),
+        },
         fields: ["id", "date", "amount", "category", "status", "user_id"],
         format: format,
       };

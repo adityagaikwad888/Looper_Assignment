@@ -369,6 +369,8 @@ const queryTransactions = async (req, res) => {
       }
     }
 
+    console.log("Query Transaction filter:", query);
+
     // Pagination
     const pageNum = parseInt(page);
     const limitNum = parseInt(limit);
@@ -390,6 +392,7 @@ const queryTransactions = async (req, res) => {
     // Format response data
     const formattedData = transactions.map((transaction) => ({
       id: transaction.id,
+      _id: transaction._id,
       name: `User ${transaction.user_id}`,
       date: transaction.date.toISOString().split("T")[0], // Format: 2024-01-15
       amount: transaction.amount,
@@ -452,6 +455,8 @@ const exportTransactions = async (req, res) => {
       if (amountMin !== undefined) query.amount.$gte = parseFloat(amountMin);
       if (amountMax !== undefined) query.amount.$lte = parseFloat(amountMax);
     }
+
+    console.log("Export filter query:", query);
 
     // Get all matching transactions (no pagination for export)
     const transactions = await Transaction.find(query).sort({ date: -1 });

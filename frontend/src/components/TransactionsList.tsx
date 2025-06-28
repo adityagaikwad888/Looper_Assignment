@@ -65,10 +65,30 @@ const fetchTransactions = async (
       "http://localhost:3000/api/transactions/query",
       {
         ...queryParams,
-        ...(filters.amountMin && { amountMin: parseFloat(filters.amountMin) }),
-        ...(filters.amountMax && { amountMax: parseFloat(filters.amountMax) }),
+        ...(filters.amountMin &&
+          filters.amountMin !== "" && {
+            amountMin: parseFloat(filters.amountMin),
+          }),
+        ...(filters.amountMax &&
+          filters.amountMax !== "" && {
+            amountMax: parseFloat(filters.amountMax),
+          }),
       }
     );
+
+    // If the response has the expected format (from queryTransactions endpoint)
+    if (response.data.data) {
+      return {
+        transactions: response.data.data,
+        pagination: {
+          currentPage: response.data.page,
+          totalPages: response.data.totalPages,
+          totalCount: response.data.total,
+          hasNext: response.data.page < response.data.totalPages,
+          hasPrev: response.data.page > 1,
+        },
+      };
+    }
     return response.data;
   } else {
     // Use GET /transactions for simple filtering
