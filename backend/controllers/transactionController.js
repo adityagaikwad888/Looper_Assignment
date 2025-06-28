@@ -244,7 +244,7 @@ const getTransactions = async (req, res) => {
     if (search) {
       const searchRegex = { $regex: search, $options: "i" };
       const numericSearch = parseFloat(search);
-      
+
       query.$or = [
         { user_id: searchRegex },
         { category: searchRegex },
@@ -341,7 +341,7 @@ const queryTransactions = async (req, res) => {
     if (search) {
       const searchRegex = { $regex: search, $options: "i" };
       const numericSearch = parseFloat(search);
-      
+
       query.$or = [
         { user_id: searchRegex },
         { category: searchRegex },

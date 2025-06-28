@@ -29,10 +29,10 @@ const Transactions = () => {
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const searchValue = e.target.value;
-    setFilters(prev => ({
+    setFilters((prev) => ({
       ...prev,
       search: searchValue,
-      page: 1 // Reset to first page when searching
+      page: 1, // Reset to first page when searching
     }));
   };
 
