@@ -1,16 +1,17 @@
-
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { useQuery } from '@tanstack/react-query';
-import axios from 'axios';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useQuery } from "@tanstack/react-query";
+import axios from "axios";
 
 const fetchRecentTransactions = async () => {
-  const response = await axios.get('http://localhost:3000/api/transactions/recent');
+  const response = await axios.get(
+    "http://localhost:3000/api/transactions/recent"
+  );
   return response.data;
 };
 
 const RecentTransactions = () => {
   const { data: transactions = [], isLoading } = useQuery({
-    queryKey: ['recent-transactions'],
+    queryKey: ["recent-transactions"],
     queryFn: fetchRecentTransactions,
   });
   return (
@@ -31,17 +32,24 @@ const RecentTransactions = () => {
             <div key={transaction.id} className="flex items-center space-x-3">
               <div className="w-10 h-10 rounded-full bg-slate-700 flex items-center justify-center">
                 <span className="text-sm font-medium text-white">
-                  {transaction.name ? transaction.name.charAt(0) : 'T'}
+                  {transaction.name ? transaction.name.charAt(0) : "T"}
                 </span>
               </div>
               <div className="flex-1">
-                <p className="text-sm font-medium text-white">{transaction.type}</p>
-                <p className="text-xs text-slate-400">{transaction.name || `Transaction #${transaction.id}`}</p>
+                <p className="text-sm font-medium text-white">
+                  {transaction.type}
+                </p>
+                <p className="text-xs text-slate-400">
+                  {transaction.name || `Transaction #${transaction.id}`}
+                </p>
               </div>
-              <span className={`text-sm font-semibold ${
-                transaction.amount > 0 ? 'text-emerald-400' : 'text-red-400'
-              }`}>
-                {transaction.amount > 0 ? '+' : ''}${Math.abs(transaction.amount).toLocaleString()}
+              <span
+                className={`text-sm font-semibold ${
+                  transaction.amount > 0 ? "text-emerald-400" : "text-red-400"
+                }`}
+              >
+                {transaction.amount > 0 ? "+" : ""}$
+                {Math.abs(transaction.amount).toLocaleString()}
               </span>
             </div>
           ))
