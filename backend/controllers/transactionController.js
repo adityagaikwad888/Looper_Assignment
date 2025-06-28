@@ -240,12 +240,20 @@ const getTransactions = async (req, res) => {
     // Build query object
     const query = {};
 
-    // Search functionality (search in user_id for now, can be extended)
+    // Search functionality - Universal search across multiple fields
     if (search) {
+      const searchRegex = { $regex: search, $options: "i" };
+      const numericSearch = parseFloat(search);
+      
       query.$or = [
-        { user_id: { $regex: search, $options: "i" } },
-        { id: isNaN(search) ? undefined : parseInt(search) },
-      ].filter(Boolean);
+        { user_id: searchRegex },
+        { category: searchRegex },
+        { status: searchRegex },
+        // Search by transaction ID if it's a number
+        ...(isNaN(search) ? [] : [{ id: parseInt(search) }]),
+        // Search by amount if it's a number
+        ...(isNaN(numericSearch) ? [] : [{ amount: numericSearch }]),
+      ];
     }
 
     // Filter by status
@@ -329,12 +337,20 @@ const queryTransactions = async (req, res) => {
     // Build query object
     const query = {};
 
-    // Search functionality
+    // Search functionality - Universal search across multiple fields
     if (search) {
+      const searchRegex = { $regex: search, $options: "i" };
+      const numericSearch = parseFloat(search);
+      
       query.$or = [
-        { user_id: { $regex: search, $options: "i" } },
-        { id: isNaN(search) ? undefined : parseInt(search) },
-      ].filter(Boolean);
+        { user_id: searchRegex },
+        { category: searchRegex },
+        { status: searchRegex },
+        // Search by transaction ID if it's a number
+        ...(isNaN(search) ? [] : [{ id: parseInt(search) }]),
+        // Search by amount if it's a number
+        ...(isNaN(numericSearch) ? [] : [{ amount: numericSearch }]),
+      ];
     }
 
     // Filter by status

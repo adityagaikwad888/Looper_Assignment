@@ -39,15 +39,6 @@ const TransactionsTable = () => {
       <CardHeader>
         <div className="flex items-center justify-between">
           <CardTitle className="text-white">Transactions</CardTitle>
-          <div className="flex items-center space-x-4">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-4 w-4" />
-              <Input
-                placeholder="Search for anything..."
-                className="pl-10 w-64 bg-slate-800 border-slate-700 text-white placeholder:text-slate-500 focus:border-emerald-500"
-              />
-            </div>
-          </div>
         </div>
       </CardHeader>
       <CardContent>

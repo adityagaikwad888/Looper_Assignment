@@ -22,6 +22,7 @@ import axios from "axios";
 import { toast } from "@/hooks/use-toast";
 
 interface Filters {
+  search: string;
   status: string;
   category: string;
   amountMin: string;
@@ -49,6 +50,7 @@ const TransactionFilters = ({
 
   const clearFilters = () => {
     onFiltersChange({
+      search: "",
       status: "",
       category: "",
       amountMin: "",
@@ -66,6 +68,7 @@ const TransactionFilters = ({
     try {
       const exportData = {
         filters: {
+          ...(filters.search && { search: filters.search }),
           ...(filters.status && { status: filters.status }),
           ...(filters.category && { category: filters.category }),
           ...(filters.amountMin &&
@@ -116,6 +119,7 @@ const TransactionFilters = ({
   };
 
   const activeFiltersCount = [
+    filters.search,
     filters.status,
     filters.category,
     filters.amountMin,

@@ -7,6 +7,7 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 
 interface Filters {
+  search: string;
   status: string;
   category: string;
   amountMin: string;
@@ -53,18 +54,20 @@ const fetchTransactions = async (
     limit: filters.limit,
     sortBy: filters.sortBy,
     order: filters.order,
+    ...(filters.search && { search: filters.search }),
     ...(filters.status && { status: filters.status }),
     ...(filters.category && { category: filters.category }),
     ...(filters.dateStart && { dateFrom: filters.dateStart }),
     ...(filters.dateEnd && { dateTo: filters.dateEnd }),
   };
 
-  // Use POST /transactions/query for advanced filtering with amount ranges
-  if (filters.amountMin || filters.amountMax) {
+  // Use POST /transactions/query for advanced filtering with amount ranges or search
+  if (filters.amountMin || filters.amountMax || filters.search) {
     const response = await axios.post(
       "http://localhost:3000/api/transactions/query",
       {
         ...queryParams,
+        ...(filters.search && { search: filters.search }),
         ...(filters.amountMin &&
           filters.amountMin !== "" && {
             amountMin: parseFloat(filters.amountMin),
