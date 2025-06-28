@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import Sidebar from "@/components/Sidebar";
 import DashboardHeader from "@/components/DashboardHeader";
 import TransactionFilters from "@/components/TransactionFilters";
@@ -8,6 +9,8 @@ import { Search } from "lucide-react";
 
 const Transactions = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const location = useLocation();
+  
   const [filters, setFilters] = useState({
     search: "",
     status: "",
@@ -21,6 +24,13 @@ const Transactions = () => {
     page: 1,
     limit: 10,
   });
+
+  // Handle navigation state from "See all" button
+  useEffect(() => {
+    if (location.state?.defaultFilters) {
+      setFilters(location.state.defaultFilters);
+    }
+  }, [location.state]);
 
   const handleFiltersChange = (newFilters: typeof filters) => {
     // Reset to page 1 when filters change

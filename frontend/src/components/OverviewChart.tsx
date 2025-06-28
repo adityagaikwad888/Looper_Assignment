@@ -207,7 +207,7 @@ const OverviewChart = () => {
                 getCurrentIncome() >= 0 ? "text-emerald-400" : "text-red-400"
               }`}
             >
-              {getCurrentIncome() >= 0 ? "+" : ""}$
+              {getCurrentIncome() >= 0 ? "+" : "-"}$
               {Math.abs(getCurrentIncome()).toLocaleString()}
             </span>
           </div>
