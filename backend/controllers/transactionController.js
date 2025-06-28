@@ -83,11 +83,11 @@ const getDashboardTrends = async (req, res) => {
       const month = getMonthName(transaction.date);
 
       if (!monthlyData[month]) {
-        monthlyData[month] = { month, income: 0, expenses: 0 };
+        monthlyData[month] = { month, revenue: 0, expenses: 0 };
       }
 
       if (transaction.category === "Revenue") {
-        monthlyData[month].income += transaction.amount;
+        monthlyData[month].revenue += transaction.amount;
       } else if (transaction.category === "Expense") {
         monthlyData[month].expenses += transaction.amount;
       }
@@ -112,7 +112,7 @@ const getDashboardTrends = async (req, res) => {
       .filter((month) => monthlyData[month])
       .map((month) => ({
         month,
-        income: parseFloat(monthlyData[month].income.toFixed(2)),
+        revenue: parseFloat(monthlyData[month].revenue.toFixed(2)),
         expenses: parseFloat(monthlyData[month].expenses.toFixed(2)),
       }));
 
@@ -171,14 +171,14 @@ const getDashboardTrendsYearly = async (req, res) => {
         trends.push({
           year,
           revenue: parseFloat(yearlyData[year].revenue.toFixed(2)),
-          expense: parseFloat(yearlyData[year].expense.toFixed(2)),
+          expenses: parseFloat(yearlyData[year].expense.toFixed(2)),
         });
       } else {
         // Include years with no data as 0
         trends.push({
           year,
           revenue: 0,
-          expense: 0,
+          expenses: 0,
         });
       }
     }

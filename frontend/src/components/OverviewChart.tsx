@@ -34,6 +34,8 @@ const fetchYearlyTrends = async () => {
 
 const OverviewChart = () => {
   const [selectedPeriod, setSelectedPeriod] = useState("monthly");
+  const [hoveredData, setHoveredData] = useState(null);
+  const [selectedData, setSelectedData] = useState(null);
 
   const { data: monthlyData = [], isLoading: monthlyLoading } = useQuery({
     queryKey: ["monthly-trends"],
@@ -50,6 +52,40 @@ const OverviewChart = () => {
     selectedPeriod === "monthly" ? monthlyLoading : yearlyLoading;
   const xAxisKey = selectedPeriod === "monthly" ? "month" : "year";
 
+  // Calculate total income for the period
+  const calculateTotalIncome = (data) => {
+    return data.reduce((total, item) => {
+      const income = (item.revenue || 0) - (item.expenses || 0);
+      return total + income;
+    }, 0);
+  };
+
+  // Get current income to display
+  const getCurrentIncome = () => {
+    if (hoveredData) {
+      return (hoveredData.revenue || 0) - (hoveredData.expenses || 0);
+    }
+    if (selectedData) {
+      return (selectedData.revenue || 0) - (selectedData.expenses || 0);
+    }
+    return calculateTotalIncome(currentData);
+  };
+
+  // Get current period label
+  const getCurrentPeriodLabel = () => {
+    if (hoveredData) {
+      return selectedPeriod === "monthly"
+        ? hoveredData.month
+        : hoveredData.year;
+    }
+    if (selectedData) {
+      return selectedPeriod === "monthly"
+        ? selectedData.month
+        : selectedData.year;
+    }
+    return selectedPeriod === "monthly" ? "Total (Monthly)" : "Total (Yearly)";
+  };
+
   return (
     <Card className="bg-slate-900 border-slate-800">
       <CardHeader>
@@ -57,9 +93,10 @@ const OverviewChart = () => {
           <div>
             <CardTitle className="text-white">Overview</CardTitle>
             <div className="flex items-center space-x-4 mt-2">
+              {" "}
               <div className="flex items-center">
                 <div className="w-3 h-3 bg-emerald-500 rounded-full mr-2"></div>
-                <span className="text-sm text-slate-400">Income</span>
+                <span className="text-sm text-slate-400">Revenue</span>
               </div>
               <div className="flex items-center">
                 <div className="w-3 h-3 bg-yellow-500 rounded-full mr-2"></div>
@@ -86,7 +123,30 @@ const OverviewChart = () => {
             </div>
           ) : (
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={currentData}>
+              <LineChart
+                data={currentData}
+                onMouseMove={(data) => {
+                  if (
+                    data &&
+                    data.activePayload &&
+                    data.activePayload.length > 0
+                  ) {
+                    setHoveredData(data.activePayload[0].payload);
+                  }
+                }}
+                onMouseLeave={() => {
+                  setHoveredData(null);
+                }}
+                onClick={(data) => {
+                  if (
+                    data &&
+                    data.activePayload &&
+                    data.activePayload.length > 0
+                  ) {
+                    setSelectedData(data.activePayload[0].payload);
+                  }
+                }}
+              >
                 <XAxis
                   dataKey={xAxisKey}
                   axisLine={false}
@@ -119,7 +179,7 @@ const OverviewChart = () => {
                 />
                 <Line
                   type="monotone"
-                  dataKey="income"
+                  dataKey="revenue"
                   stroke="#10b981"
                   strokeWidth={3}
                   dot={{ fill: "#10b981", strokeWidth: 2, r: 4 }}
@@ -139,11 +199,34 @@ const OverviewChart = () => {
         </div>
         <div className="mt-4 p-4 bg-slate-800 rounded-lg">
           <div className="flex items-center justify-between">
-            <span className="text-slate-400">Income</span>
-            <span className="text-emerald-400 font-semibold">
-              {selectedPeriod === "yearly" ? "$195,302.00" : "$224.00"}
+            <span className="text-slate-400">
+              Income ({getCurrentPeriodLabel()})
+            </span>
+            <span
+              className={`font-semibold ${
+                getCurrentIncome() >= 0 ? "text-emerald-400" : "text-red-400"
+              }`}
+            >
+              {getCurrentIncome() >= 0 ? "+" : ""}$
+              {Math.abs(getCurrentIncome()).toLocaleString()}
             </span>
           </div>
+          {(hoveredData || selectedData) && (
+            <div className="mt-2 text-xs text-slate-500">
+              Revenue: $
+              {(
+                hoveredData?.revenue ||
+                selectedData?.revenue ||
+                0
+              ).toLocaleString()}{" "}
+              | Expenses: $
+              {(
+                hoveredData?.expenses ||
+                selectedData?.expenses ||
+                0
+              ).toLocaleString()}
+            </div>
+          )}
         </div>
       </CardContent>
     </Card>
