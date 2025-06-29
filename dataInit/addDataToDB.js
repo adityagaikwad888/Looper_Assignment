@@ -3,7 +3,7 @@ const fs = require("fs");
 
 // Simple script to add transaction data to MongoDB
 async function addTransactionData() {
-  const mongoUri = "mongodb://127.0.0.1:27017";
+  const mongoUri = "";
   const dbName = "transactionsData";
   const collectionName = "transactions";
 

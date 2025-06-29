@@ -18,7 +18,7 @@ import {
 import { Download, Filter, X, CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
-import axios from "axios";
+import api from "@/services/apiClient";
 import { toast } from "@/hooks/use-toast";
 
 interface Filters {
@@ -86,13 +86,9 @@ const TransactionFilters = ({
         format: format,
       };
 
-      const response = await axios.post(
-        "http://localhost:3000/api/transactions/export",
-        exportData,
-        {
-          responseType: "blob",
-        }
-      );
+      const response = await api.post("/transactions/export", exportData, {
+        responseType: "blob",
+      });
 
       // Create download link
       const url = window.URL.createObjectURL(new Blob([response.data]));
@@ -158,7 +154,7 @@ const TransactionFilters = ({
               variant="outline"
               size="sm"
               onClick={() => exportTransactions("csv")}
-              className="border-slate-700 text-slate-300 hover:text-white"
+              className="border-black text-black hover:text-gray-800 hover:border-gray-800"
             >
               <Download className="h-4 w-4 mr-2" />
               Export CSV
@@ -167,7 +163,7 @@ const TransactionFilters = ({
               variant="outline"
               size="sm"
               onClick={() => exportTransactions("json")}
-              className="border-slate-700 text-slate-300 hover:text-white"
+              className="border-black text-black hover:text-gray-800 hover:border-gray-800"
             >
               <Download className="h-4 w-4 mr-2" />
               Export JSON
