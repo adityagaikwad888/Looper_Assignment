@@ -10,7 +10,7 @@ services:
     ports:
       - "3000:3000"
     environment:
-      - NODE_ENV=production
+      - NODE_ENV=devlopment
       - PORT=3000
       - AUTH_MONGODB_URI=mongodb+srv://aditya22210331:oKiTR2NEiayMpIOV@cluster0.ojgzw.mongodb.net/auth_system_dev?retryWrites=true&w=majority&appName=Cluster0
       - TRANSACTION_MONGODB_URI=mongodb+srv://aditya22210331:oKiTR2NEiayMpIOV@cluster0.ojgzw.mongodb.net/transactionsData?retryWrites=true&w=majority&appName=Cluster0
