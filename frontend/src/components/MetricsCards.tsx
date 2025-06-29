@@ -1,12 +1,10 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { CreditCard, TrendingUp, TrendingDown, PiggyBank } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
-import axios from "axios";
+import api from "../services/apiClient";
 
 const fetchDashboardSummary = async () => {
-  const response = await axios.get(
-    "http://localhost:3000/api/dashboard/summary"
-  );
+  const response = await api.get("/dashboard/summary");
   return response.data;
 };
 

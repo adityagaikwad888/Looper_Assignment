@@ -14,6 +14,7 @@ connectDB();
 // Import routes
 const authRoutes = require("./routes/auth");
 const transactionRoutes = require("./routes/transactions");
+const { protect } = require("./middleware/auth");
 
 const app = express();
 
@@ -51,7 +52,7 @@ app.use("/api", (req, res, next) => {
 });
 
 // Test transaction endpoint
-app.get("/api/test-transactions", async (req, res) => {
+app.get("/api/test-transactions", protect, async (req, res) => {
   console.log("🧪 TEST ENDPOINT HIT");
   try {
     const Transaction = require("./models/Transaction");
@@ -112,7 +113,7 @@ app.post("/test", (req, res) => {
 });
 
 // Log status route
-app.get("/logs/status", (req, res) => {
+app.get("/logs/status", protect, (req, res) => {
   res.json({
     loggingEnabled: process.env.ENABLE_LOGS === "true",
     logLevel: process.env.LOG_LEVEL || "info",

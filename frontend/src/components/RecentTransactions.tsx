@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useQuery } from "@tanstack/react-query";
-import axios from "axios";
+import api from "../services/apiClient";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -11,9 +11,7 @@ import {
 } from "@/components/ui/tooltip";
 
 const fetchRecentTransactions = async () => {
-  const response = await axios.get(
-    "http://localhost:3000/api/transactions/recent"
-  );
+  const response = await api.get("/transactions/recent");
   return response.data;
 };
 

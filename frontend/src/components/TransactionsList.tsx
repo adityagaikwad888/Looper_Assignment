@@ -3,7 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
-import axios from "axios";
+import api from "../services/apiClient";
 import { useEffect, useState } from "react";
 
 interface Filters {
@@ -63,21 +63,18 @@ const fetchTransactions = async (
 
   // Use POST /transactions/query for advanced filtering with amount ranges or search
   if (filters.amountMin || filters.amountMax || filters.search) {
-    const response = await axios.post(
-      "http://localhost:3000/api/transactions/query",
-      {
-        ...queryParams,
-        ...(filters.search && { search: filters.search }),
-        ...(filters.amountMin &&
-          filters.amountMin !== "" && {
-            amountMin: parseFloat(filters.amountMin),
-          }),
-        ...(filters.amountMax &&
-          filters.amountMax !== "" && {
-            amountMax: parseFloat(filters.amountMax),
-          }),
-      }
-    );
+    const response = await api.post("/transactions/query", {
+      ...queryParams,
+      ...(filters.search && { search: filters.search }),
+      ...(filters.amountMin &&
+        filters.amountMin !== "" && {
+          amountMin: parseFloat(filters.amountMin),
+        }),
+      ...(filters.amountMax &&
+        filters.amountMax !== "" && {
+          amountMax: parseFloat(filters.amountMax),
+        }),
+    });
 
     // If the response has the expected format (from queryTransactions endpoint)
     if (response.data.data) {
@@ -95,7 +92,7 @@ const fetchTransactions = async (
     return response.data;
   } else {
     // Use GET /transactions for simple filtering
-    const response = await axios.get("http://localhost:3000/api/transactions", {
+    const response = await api.get("/transactions", {
       params: queryParams,
     });
     return response.data;

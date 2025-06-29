@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Search, Calendar } from "lucide-react";
+import api from "../services/apiClient";
 
 interface Transaction {
   id: string;
@@ -33,10 +34,10 @@ const TransactionsTable = () => {
   const fetchTransactions = async () => {
     try {
       setLoading(true);
-      const response = await fetch(
-        `http://localhost:3000/api/transactions/table?page=${currentPage}&limit=10`
+      const response = await api.get(
+        `/transactions/table?page=${currentPage}&limit=10`
       );
-      const data = await response.json();
+      const data = response.data;
 
       if (data.transactions) {
         setTransactions(data.transactions);

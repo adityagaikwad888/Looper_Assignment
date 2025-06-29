@@ -1,18 +1,17 @@
-
-import { cn } from '@/lib/utils';
-import { useAuth } from '../App';
-import { useLocation, Link } from 'react-router-dom';
-import { 
-  LayoutDashboard, 
-  CreditCard, 
-  Wallet, 
-  BarChart3, 
-  User, 
-  MessageSquare, 
+import { cn } from "@/lib/utils";
+import { useAuth } from "../App";
+import { useLocation, Link } from "react-router-dom";
+import {
+  LayoutDashboard,
+  CreditCard,
+  Wallet,
+  BarChart3,
+  User,
+  MessageSquare,
   Settings,
   LogOut,
-  X
-} from 'lucide-react';
+  X,
+} from "lucide-react";
 
 interface SidebarProps {
   isOpen: boolean;
@@ -20,37 +19,39 @@ interface SidebarProps {
 }
 
 const navigation = [
-  { name: 'Dashboard', icon: LayoutDashboard, href: '/' },
-  { name: 'Transactions', icon: CreditCard, href: '/transactions' },
-  { name: 'Wallet', icon: Wallet, href: '#' },
-  { name: 'Analytics', icon: BarChart3, href: '#' },
-  { name: 'Personal', icon: User, href: '#' },
-  { name: 'Message', icon: MessageSquare, href: '#' },
-  { name: 'Setting', icon: Settings, href: '#' },
+  { name: "Dashboard", icon: LayoutDashboard, href: "/" },
+  { name: "Transactions", icon: CreditCard, href: "/transactions" },
+  { name: "Wallet", icon: Wallet, href: "#" },
+  { name: "Analytics", icon: BarChart3, href: "#" },
+  { name: "Personal", icon: User, href: "#" },
+  { name: "Message", icon: MessageSquare, href: "#" },
+  { name: "Setting", icon: Settings, href: "#" },
 ];
 
 const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
   const { logout, user } = useAuth();
   const location = useLocation();
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    await logout();
   };
 
   return (
     <>
       {/* Mobile backdrop */}
       {isOpen && (
-        <div 
+        <div
           className="fixed inset-0 bg-black/50 z-40 lg:hidden"
           onClick={onClose}
         />
       )}
-      
-      <div className={cn(
-        "fixed left-0 top-0 h-full w-64 bg-slate-900 border-r border-slate-800 z-50 transform transition-transform duration-200 ease-in-out",
-        isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
-      )}>
+
+      <div
+        className={cn(
+          "fixed left-0 top-0 h-full w-64 bg-slate-900 border-r border-slate-800 z-50 transform transition-transform duration-200 ease-in-out",
+          isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
+        )}
+      >
         <div className="flex flex-col h-full">
           {/* Header */}
           <div className="flex items-center justify-between p-6 border-b border-slate-800">
@@ -60,7 +61,7 @@ const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
               </div>
               <span className="ml-2 text-xl font-bold text-white">Penta</span>
             </div>
-            <button 
+            <button
               onClick={onClose}
               className="lg:hidden text-slate-400 hover:text-white"
             >

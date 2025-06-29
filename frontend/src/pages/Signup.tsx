@@ -1,16 +1,21 @@
-
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../App';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { toast } from '@/hooks/use-toast';
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../App";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { toast } from "@/hooks/use-toast";
 
 const Signup = () => {
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const { signup } = useAuth();
   const navigate = useNavigate();
@@ -20,13 +25,14 @@ const Signup = () => {
     setIsLoading(true);
 
     try {
-      const success = signup(name, email, password);
+      const success = await signup(name, email, password);
       if (success) {
         toast({
           title: "Account created!",
-          description: "Welcome to Penta. Your account has been created successfully.",
+          description:
+            "Welcome to Penta. Your account has been created successfully.",
         });
-        navigate('/');
+        navigate("/");
       } else {
         toast({
           title: "Signup failed",
@@ -34,10 +40,11 @@ const Signup = () => {
           variant: "destructive",
         });
       }
-    } catch (error) {
+    } catch (error: any) {
       toast({
-        title: "Error",
-        description: "An unexpected error occurred. Please try again.",
+        title: "Signup Error",
+        description:
+          error.message || "An unexpected error occurred. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -55,8 +62,12 @@ const Signup = () => {
             </div>
             <span className="ml-2 text-2xl font-bold text-white">Penta</span>
           </div>
-          <h1 className="text-3xl font-bold text-white mb-2">Create your account</h1>
-          <p className="text-slate-400">Join Penta and take control of your finances</p>
+          <h1 className="text-3xl font-bold text-white mb-2">
+            Create your account
+          </h1>
+          <p className="text-slate-400">
+            Join Penta and take control of your finances
+          </p>
         </div>
 
         <Card className="bg-slate-900 border-slate-800">
@@ -69,7 +80,10 @@ const Signup = () => {
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
-                <label htmlFor="name" className="text-sm font-medium text-slate-300">
+                <label
+                  htmlFor="name"
+                  className="text-sm font-medium text-slate-300"
+                >
                   Full Name
                 </label>
                 <Input
@@ -83,7 +97,10 @@ const Signup = () => {
                 />
               </div>
               <div className="space-y-2">
-                <label htmlFor="email" className="text-sm font-medium text-slate-300">
+                <label
+                  htmlFor="email"
+                  className="text-sm font-medium text-slate-300"
+                >
                   Email
                 </label>
                 <Input
@@ -97,7 +114,10 @@ const Signup = () => {
                 />
               </div>
               <div className="space-y-2">
-                <label htmlFor="password" className="text-sm font-medium text-slate-300">
+                <label
+                  htmlFor="password"
+                  className="text-sm font-medium text-slate-300"
+                >
                   Password
                 </label>
                 <Input
@@ -120,8 +140,11 @@ const Signup = () => {
             </form>
             <div className="mt-6 text-center">
               <p className="text-slate-400">
-                Already have an account?{' '}
-                <Link to="/login" className="text-emerald-400 hover:text-emerald-300 font-medium">
+                Already have an account?{" "}
+                <Link
+                  to="/login"
+                  className="text-emerald-400 hover:text-emerald-300 font-medium"
+                >
                   Sign in
                 </Link>
               </p>

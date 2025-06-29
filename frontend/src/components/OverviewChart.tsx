@@ -16,19 +16,15 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useQuery } from "@tanstack/react-query";
-import axios from "axios";
+import api from "../services/apiClient";
 
 const fetchMonthlyTrends = async () => {
-  const response = await axios.get(
-    "http://localhost:3000/api/dashboard/trends/monthly"
-  );
+  const response = await api.get("/dashboard/trends/monthly");
   return response.data;
 };
 
 const fetchYearlyTrends = async () => {
-  const response = await axios.get(
-    "http://localhost:3000/api/dashboard/trends/yearly"
-  );
+  const response = await api.get("/dashboard/trends/yearly");
   return response.data;
 };
 
