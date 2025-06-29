@@ -5,6 +5,7 @@ const {
   getDashboardTrendsYearly,
   getRecentTransactions,
   getTransactions,
+  getTransactionsTable,
   queryTransactions,
   exportTransactions,
 } = require("../controllers/transactionController");
@@ -18,6 +19,7 @@ router.get("/dashboard/trends/yearly", getDashboardTrendsYearly);
 
 // Transaction endpoints
 router.get("/transactions/recent", getRecentTransactions);
+router.get("/transactions/table", getTransactionsTable);
 router.get("/transactions", getTransactions);
 router.post("/transactions/query", queryTransactions);
 router.post("/transactions/export", exportTransactions);

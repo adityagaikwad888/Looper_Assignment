@@ -207,7 +207,9 @@ const getRecentTransactions = async (req, res) => {
 
     const formattedTransactions = recentTransactions.map((transaction) => ({
       id: transaction.id,
-      name: `Transaction #${transaction.id}`,
+      name: transaction.user_id
+        ? `User ${transaction.user_id}`
+        : `Transaction #${transaction.id}`,
       amount: transaction.amount,
       type: transaction.category.toLowerCase(),
       date: transaction.date,
@@ -563,6 +565,115 @@ const exportTransactions = async (req, res) => {
   }
 };
 
+// 7. GET /transactions/table - Transactions Table with User Names
+const getTransactionsTable = async (req, res) => {
+  try {
+    const limit = parseInt(req.query.limit) || 10;
+    const page = parseInt(req.query.page) || 1;
+    const skip = (page - 1) * limit;
+
+    // Aggregate transactions by user
+    const pipeline = [
+      {
+        $group: {
+          _id: "$user_id",
+          totalRevenue: {
+            $sum: {
+              $cond: [
+                { $in: ["$category", ["Revenue", "Income"]] },
+                "$amount",
+                0,
+              ],
+            },
+          },
+          totalExpenses: {
+            $sum: {
+              $cond: [{ $eq: ["$category", "Expense"] }, "$amount", 0],
+            },
+          },
+          lastTransactionDate: { $max: "$date" },
+          transactionCount: { $sum: 1 },
+        },
+      },
+      {
+        $sort: { lastTransactionDate: -1 },
+      },
+      {
+        $skip: skip,
+      },
+      {
+        $limit: limit,
+      },
+    ];
+
+    const userGroups = await Transaction.aggregate(pipeline);
+
+    // Get total count of unique users for pagination
+    const totalUsersCount = await Transaction.distinct("user_id").then(
+      (users) => users.length
+    );
+
+    // Format the grouped data for table display
+    const formattedUsers = userGroups.map((userGroup) => {
+      return {
+        id: userGroup._id,
+        name: userGroup._id || "Unknown User",
+        lastDate: userGroup.lastTransactionDate
+          ? new Date(userGroup.lastTransactionDate).toLocaleDateString(
+              "en-US",
+              {
+                weekday: "short",
+                day: "2-digit",
+                month: "short",
+                year: "numeric",
+              }
+            )
+          : "No transactions",
+        totalRevenue: userGroup.totalRevenue,
+        totalExpenses: userGroup.totalExpenses,
+        netAmount: userGroup.totalRevenue - userGroup.totalExpenses,
+        transactionCount: userGroup.transactionCount,
+        // Format revenue
+        formattedRevenue: `+$${userGroup.totalRevenue.toFixed(2)}`,
+        revenueColor: "text-emerald-400",
+        // Format expenses
+        formattedExpenses: `-$${userGroup.totalExpenses.toFixed(2)}`,
+        expensesColor: "text-red-400",
+        // Format net amount
+        formattedNetAmount:
+          userGroup.totalRevenue - userGroup.totalExpenses >= 0
+            ? `+$${Math.abs(
+                userGroup.totalRevenue - userGroup.totalExpenses
+              ).toFixed(2)}`
+            : `-$${Math.abs(
+                userGroup.totalRevenue - userGroup.totalExpenses
+              ).toFixed(2)}`,
+        netAmountColor:
+          userGroup.totalRevenue - userGroup.totalExpenses >= 0
+            ? "text-emerald-400"
+            : "text-red-400",
+      };
+    });
+
+    const response = {
+      transactions: formattedUsers,
+      pagination: {
+        currentPage: page,
+        totalPages: Math.ceil(totalUsersCount / limit),
+        totalCount: totalUsersCount,
+        hasNext: page < Math.ceil(totalUsersCount / limit),
+        hasPrev: page > 1,
+      },
+    };
+
+    logger.info(`${formattedUsers.length} user groups retrieved for table`);
+    res.json(response);
+  } catch (error) {
+    logger.error("Error getting transactions table:", error);
+    res.status(500).json({ message: "Error retrieving transactions table" });
+  }
+};
+
 module.exports = {
   getDashboardSummary,
   getDashboardTrends,
@@ -571,4 +682,5 @@ module.exports = {
   getTransactions,
   queryTransactions,
   exportTransactions,
+  getTransactionsTable,
 };

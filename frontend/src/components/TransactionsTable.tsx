@@ -1,39 +1,68 @@
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Search, Calendar } from "lucide-react";
 
-const transactions = [
-  {
-    id: 1,
-    name: "Matheus Ferrero",
-    date: "Sat,20 Apr 2020",
-    amount: "+$80.09",
-    status: "Completed",
-    color: "text-emerald-400",
-    statusColor: "bg-emerald-500/10 text-emerald-400",
-  },
-  {
-    id: 2,
-    name: "Floyd Miles",
-    date: "Fri,19 Apr 2020",
-    amount: "-$7.03",
-    status: "Completed",
-    color: "text-red-400",
-    statusColor: "bg-emerald-500/10 text-emerald-400",
-  },
-  {
-    id: 3,
-    name: "Jerome Bell",
-    date: "Tue,19 Apr 2020",
-    amount: "-$30.09",
-    status: "Pending",
-    color: "text-red-400",
-    statusColor: "bg-yellow-500/10 text-yellow-400",
-  },
-];
+interface Transaction {
+  id: string;
+  name: string;
+  lastDate: string;
+  totalRevenue: number;
+  totalExpenses: number;
+  netAmount: number;
+  transactionCount: number;
+  formattedRevenue: string;
+  revenueColor: string;
+  formattedExpenses: string;
+  expensesColor: string;
+  formattedNetAmount: string;
+  netAmountColor: string;
+}
 
 const TransactionsTable = () => {
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+
+  useEffect(() => {
+    fetchTransactions();
+  }, [currentPage]);
+
+  const fetchTransactions = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch(
+        `http://localhost:3000/api/transactions/table?page=${currentPage}&limit=10`
+      );
+      const data = await response.json();
+
+      if (data.transactions) {
+        setTransactions(data.transactions);
+        setTotalPages(data.pagination.totalPages);
+      }
+    } catch (error) {
+      console.error("Error fetching transactions:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <Card className="bg-slate-900 border-slate-800">
+        <CardHeader>
+          <CardTitle className="text-white">Transactions</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex justify-center items-center py-8">
+            <div className="text-slate-400">Loading transactions...</div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
   return (
     <Card className="bg-slate-900 border-slate-800">
       <CardHeader>
@@ -47,16 +76,19 @@ const TransactionsTable = () => {
             <thead>
               <tr className="border-b border-slate-800">
                 <th className="text-left py-3 text-slate-400 font-medium">
-                  Name
+                  User Name
                 </th>
                 <th className="text-left py-3 text-slate-400 font-medium">
-                  Date
+                  Last Transaction
                 </th>
                 <th className="text-left py-3 text-slate-400 font-medium">
-                  Amount
+                  Revenue
                 </th>
                 <th className="text-left py-3 text-slate-400 font-medium">
-                  Status
+                  Expenses
+                </th>
+                <th className="text-left py-3 text-slate-400 font-medium">
+                  Net Amount
                 </th>
               </tr>
             </thead>
@@ -70,30 +102,72 @@ const TransactionsTable = () => {
                     <div className="flex items-center space-x-3">
                       <div className="w-10 h-10 rounded-full bg-slate-700 flex items-center justify-center">
                         <span className="text-sm font-medium text-white">
-                          {transaction.name.charAt(0)}
+                          {transaction.name.charAt(0).toUpperCase()}
                         </span>
                       </div>
-                      <span className="text-white font-medium">
-                        {transaction.name}
-                      </span>
+                      <div>
+                        <span className="text-white font-medium">
+                          {transaction.name}
+                        </span>
+                        <div className="text-xs text-slate-400">
+                          {transaction.transactionCount} transactions
+                        </div>
+                      </div>
                     </div>
                   </td>
-                  <td className="py-4 text-slate-400">{transaction.date}</td>
+                  <td className="py-4 text-slate-400">
+                    {transaction.lastDate}
+                  </td>
                   <td className="py-4">
-                    <span className={`font-semibold ${transaction.color}`}>
-                      {transaction.amount}
+                    <span
+                      className={`font-semibold ${transaction.revenueColor}`}
+                    >
+                      {transaction.formattedRevenue}
                     </span>
                   </td>
                   <td className="py-4">
-                    <Badge className={transaction.statusColor}>
-                      {transaction.status}
-                    </Badge>
+                    <span
+                      className={`font-semibold ${transaction.expensesColor}`}
+                    >
+                      {transaction.formattedExpenses}
+                    </span>
+                  </td>
+                  <td className="py-4">
+                    <span
+                      className={`font-semibold ${transaction.netAmountColor}`}
+                    >
+                      {transaction.formattedNetAmount}
+                    </span>
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
+
+        {totalPages > 1 && (
+          <div className="flex justify-center items-center mt-6 space-x-2">
+            <button
+              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+              className="px-3 py-1 rounded bg-slate-800 text-slate-300 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-700"
+            >
+              Previous
+            </button>
+            <span className="text-slate-400">
+              Page {currentPage} of {totalPages}
+            </span>
+            <button
+              onClick={() =>
+                setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+              }
+              disabled={currentPage === totalPages}
+              className="px-3 py-1 rounded bg-slate-800 text-slate-300 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-700"
+            >
+              Next
+            </button>
+          </div>
+        )}
       </CardContent>
     </Card>
   );

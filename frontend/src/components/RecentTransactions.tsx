@@ -56,20 +56,9 @@ const RecentTransactions = () => {
   };
 
   const getAmountColor = (transaction) => {
-    // Debug: log the transaction data
-    console.log("Transaction data:", transaction);
-
     // Check category first, then amount
     // Use type field which is the lowercase version of category
     const category = transaction.type ? transaction.type.toLowerCase() : "";
-    console.log(
-      "Category:",
-      category,
-      "Status:",
-      transaction.status,
-      "Amount:",
-      transaction.amount
-    );
 
     if (category === "revenue") {
       return "text-emerald-400"; // Green for revenue
@@ -129,10 +118,7 @@ const RecentTransactions = () => {
                     </div>
                     <div className="flex-1">
                       <p className="text-sm font-medium text-white">
-                        {transaction.type
-                          ? transaction.type.charAt(0).toUpperCase() +
-                            transaction.type.slice(1)
-                          : "Unknown"}
+                        {transaction.name || "Unknown User"}
                       </p>
                       <p className="text-xs text-slate-400">
                         {formatDate(transaction.date)}
