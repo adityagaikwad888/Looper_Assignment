@@ -158,7 +158,7 @@ const TransactionFilters = ({
               variant="outline"
               size="sm"
               onClick={() => exportTransactions("csv")}
-              className="border-slate-700 text-slate-300 hover:text-white"
+              className="border-black text-black hover:text-gray-800 hover:border-gray-800"
             >
               <Download className="h-4 w-4 mr-2" />
               Export CSV
@@ -167,7 +167,7 @@ const TransactionFilters = ({
               variant="outline"
               size="sm"
               onClick={() => exportTransactions("json")}
-              className="border-slate-700 text-slate-300 hover:text-white"
+              className="border-black text-black hover:text-gray-800 hover:border-gray-800"
             >
               <Download className="h-4 w-4 mr-2" />
               Export JSON
